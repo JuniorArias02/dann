@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hugging You - Experience</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Canvas for Stars -->
+    <canvas id="starfield"></canvas>
+
+    <!-- Scenic Elements -->
+    <div class="scene-layer" id="background-layer">
+        <div class="moon"></div>
+        <div class="planet planet-1"></div>
+        <div class="planet planet-2"></div>
+    </div>
+
+    <!-- Music Player Container -->
+    <main class="player-container">
+        <div class="glass-card">
+            <div class="album-art-container">
+                <img src="./assets/album_art.png" alt="Hugging You Album Art" class="album-art">
+                <div class="glow-ring"></div>
+            </div>
+            
+            <div class="track-info">
+                <h1 class="song-title">Hugging You</h1>
+                <p class="artist-name">Tom Rosenthal</p>
+            </div>
+
+            <div class="controls">
+                <div class="progress-area">
+                    <span class="current-time">0:00</span>
+                    <div class="progress-bar-bg" id="progress-container">
+                        <div class="progress-bar-fill" id="progress-fill"></div>
+                    </div>
+                    <span class="total-time">3:24</span> <!-- Duración aproximada -->
+                </div>
+
+                <div class="buttons">
+                    <button id="play-pause" class="btn-play" aria-label="Reproducir">
+                        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg class="icon-pause hidden" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for interactions -->
+    <div class="overlay"></div>
+
+    <audio id="audio-player" loop>
+        <!-- User needs to provide the audio file or we use a placeholder if they have one. 
+             Ideally we'd ask for the file, but for now we'll set up the structure. -->
+        <source src="assets/song.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
