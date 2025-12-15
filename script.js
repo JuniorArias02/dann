@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const stars = [];
     const shootingStars = [];
-    
+
     // Resize Observer
     const resize = () => {
         width = window.innerWidth;
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initStars();
     };
     window.addEventListener('resize', resize);
-    
+
     // Star Class
     class Star {
         constructor() {
@@ -66,17 +66,17 @@ document.addEventListener('DOMContentLoaded', () => {
             this.opacity = 0;
             this.active = true;
             this.fadingIn = true;
-            
+
             // Randomize direction slightly
             if (Math.random() < 0.5) {
-               // Top-left to bottom-right
-               this.vx = this.speed * Math.cos(this.angle);
-               this.vy = this.speed * Math.sin(this.angle);
+                // Top-left to bottom-right
+                this.vx = this.speed * Math.cos(this.angle);
+                this.vy = this.speed * Math.sin(this.angle);
             } else {
-               // Top-right to bottom-left
-               this.x = Math.random() * width; // Re-roll x
-               this.vx = -this.speed * Math.cos(this.angle);
-               this.vy = this.speed * Math.sin(this.angle);
+                // Top-right to bottom-left
+                this.x = Math.random() * width; // Re-roll x
+                this.vx = -this.speed * Math.cos(this.angle);
+                this.vy = this.speed * Math.sin(this.angle);
             }
         }
 
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.opacity -= 0.03;
                 }
             }
-            
+
             if (this.x < -100 || this.x > width + 100 || this.y > height + 100 || this.opacity <= 0) {
                 this.active = false;
             }
@@ -107,14 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         draw() {
             if (!this.active) return;
-            
+
             ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x - this.vx * (this.length / this.speed), this.y - this.vy * (this.length / this.speed));
             ctx.stroke();
-            
+
             // Head glow
             ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
             ctx.beginPath();
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const delay = Math.random() * 25000 + 15000;
         nextSpawnTime = currentTime + delay;
     };
-    
+
     const animate = (timestamp) => {
         if (nextSpawnTime === 0) scheduleNextShootingStar(timestamp);
 
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Handle Shooting Stars
-        if (timestamp > nextSpawnTime) { 
+        if (timestamp > nextSpawnTime) {
             shootingStars.push(new ShootingStar());
             scheduleNextShootingStar(timestamp);
         }
@@ -170,14 +170,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Parallax
     const backgroundLayer = document.getElementById('background-layer');
+
+    // Mouse Parallax (Desktop)
     window.addEventListener('mousemove', (e) => {
         const x = (e.clientX / width - 0.5) * 20; // -10 to 10px
         const y = (e.clientY / height - 0.5) * 20;
-        
-        backgroundLayer.style.transform = `translate(${x}px, ${y}px)`;
-        // Move stars slower for depth
-        canvas.style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
+        requestAnimationFrame(() => applyParallax(x, y));
     });
+
+    // Gyroscope Parallax (Mobile)
+    window.addEventListener('deviceorientation', (e) => {
+        // gamma: left-to-right tilt [-90, 90]
+        // beta: front-to-back tilt [-180, 180]
+        const x = Math.min(Math.max(e.gamma, -45), 45) / 45 * 20;
+        const y = Math.min(Math.max(e.beta, -45), 45) / 45 * 20;
+        requestAnimationFrame(() => applyParallax(x, y));
+    });
+
+    function applyParallax(x, y) {
+        backgroundLayer.style.transform = `translate(${x}px, ${y}px)`;
+        canvas.style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
+    }
 
     // Audio Player Logic
     const audio = document.getElementById('audio-player');
@@ -196,6 +209,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Play/Pause
     playBtn.addEventListener('click', () => {
+        // Request Mobile Accelerometer Permission (iOS 13+)
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        // Permission granted
+                    }
+                })
+                .catch(console.error);
+        }
+
         if (audio.paused) {
             audio.play();
             iconPlay.classList.add('hidden');
@@ -213,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.addEventListener('timeupdate', () => {
         const { duration, currentTime } = audio;
         if (isNaN(duration)) return;
-        
+
         const percent = (currentTime / duration) * 100;
         progressBar.style.width = `${percent}%`;
 
